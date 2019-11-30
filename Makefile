@@ -1,11 +1,17 @@
-clean:
+clean-python:
 	rm -rf **/__pycache__
 
 clean-proto:
 	rm -rf ./tests/tests
 
-clean-all: clean clean-proto
+clean-data:
+	rm -rf ./example/data
+
+clean-env:
 	rm -rf v/
+
+clean-all: clean-data clean-python clean-proto clean-env
+
 
 env: clean-all
 	virtualenv -p python3.7 v
@@ -22,5 +28,12 @@ test: clean proto
 requirements:
 	pip freeze > requirements.txt
 
-
 setup: env pip test
+
+
+docker-up:
+	sudo docker-compose -f example/docker-compose.yml up -d
+
+docker-down:
+	sudo docker-compose -f example/docker-compose.yml down
+

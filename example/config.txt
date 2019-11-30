@@ -1,11 +1,7 @@
-source-brokers = [ localhost:9092 ]
+source-brokers = localhost:9092
 source-topic = my.test.topic.json
 source-encoding = json
 
-target-brokers = [ localhost:9092 ]
-target-topic = my.test.topic.avro
-target-encoding = avro
-
-avro-schema-file = ./example/message.avro
-
-key-fields = [ user_id ]
+sink-brokers = localhost:9092
+sink-topic = my.test.topic.bson
+sink-encoding = bson

@@ -19,6 +19,12 @@ BSON_CODEC = 'bson'
 AVRO_CODEC = 'avro'
 MSGPACK_CODEC = 'msgpack'
 CAPNP_CODEC = 'capnproto'
+PROTO_CODEC = 'protobuf'
+
+CODECS = [
+    JSON_CODEC, KC_JSON_CODEC, BSON_CODEC, AVRO_CODEC, MSGPACK_CODEC,
+    CAPNP_CODEC, PROTO_CODEC
+]
 
 
 # JSON
@@ -107,10 +113,10 @@ def capnp_to_dict(schema_file, class_name, packed=False):
 
 
 # PROTOBUF
-def dict_to_proto(compiled_path, proto_message_name):
+def dict_to_proto(compiled_path, class_name):
     sys.path.append(compiled_path)
-    pb2_name = proto_message_name.lower() + '_pb2'
-    exec_string = f"from {pb2_name} import {proto_message_name} as PbufMsgWriter"
+    pb2_name = class_name.lower() + '_pb2'
+    exec_string = f"from {pb2_name} import {class_name} as PbufMsgWriter"
     exec(exec_string, globals())
 
     def f(d):
@@ -120,10 +126,10 @@ def dict_to_proto(compiled_path, proto_message_name):
 
     return f
 
-def proto_to_dict(compiled_path, proto_message_name):
+def proto_to_dict(compiled_path, class_name):
     sys.path.append(compiled_path)
-    pb2_name = proto_message_name.lower() + '_pb2'
-    exec_string = f"from {pb2_name} import {proto_message_name} as PbufMsgReader"
+    pb2_name = class_name.lower() + '_pb2'
+    exec_string = f"from {pb2_name} import {class_name} as PbufMsgReader"
     exec(exec_string, globals())
 
     def f(p):
