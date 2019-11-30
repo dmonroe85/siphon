@@ -1,0 +1,20 @@
+{
+    "name": "test",
+    "type": "record",
+    "fields": [
+        {"name": "a", "type": "double"},
+        {"name": "b", "type": "string"},
+        {"name": "c", "type": ["string", "null"]},
+        {"name": "d", "type": {
+            "type": "array",
+            "items": "int"
+        } },
+        {"name": "e", "type": {
+            "name": "e_record",
+            "type": "record",
+            "fields": [
+                {"name": "f", "type": "int"}
+            ]
+        } }
+    ]
+}

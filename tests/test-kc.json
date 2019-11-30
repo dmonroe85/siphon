@@ -1,0 +1,39 @@
+{
+    "type": "struct",
+    "fields": [
+        {
+            "type": "float32",
+            "optional": false,
+            "field": "a"
+        },
+        {
+            "type": "string",
+            "optional": false,
+            "field": "b"
+        },
+        {
+            "type": "string",
+            "optional": true,
+            "field": "c"
+        },
+        {
+            "type": "array",
+            "optional": false,
+            "field": "d"
+        },
+        {
+            "type": "struct",
+            "optional": false,
+            "field": "e",
+            "fields": [
+                {
+                    "type": "int32",
+                    "optional": false,
+                    "field": "f"
+                }
+            ]
+        }
+    ],
+    "optional": false,
+    "name": "test"
+}
