@@ -28,41 +28,56 @@ CODECS = [
 
 
 # JSON
-def dict_to_json(d):
-	return json.dumps(d).encode('utf-8')
+def dict_to_json(conf):
+    def f(d):
+        return json.dumps(d).encode('utf-8')
 
-def json_to_dict(j):
-	return json.loads(j.decode('utf-8'))
+    return f
+
+def json_to_dict(conf):
+    def f(j):
+        return json.loads(j.decode('utf-8'))
+
+    return f
 
 
 # JSON (Kafka Connect Schema)
-def dict_to_kc_json(schema_file):
-    with open(schema_file, 'r') as infile:
+def dict_to_kc_json(conf):
+    with open(conf.schema_path, 'r') as infile:
         kc_schema = json.load(infile)
 
     def f(d):
         validate.kafka_connect(kc_schema, d)
-        return dict_to_json({
+        return dict_to_json(conf)({
             'schema': kc_schema,
             'payload': d
         })
 
     return f
 
-def kc_json_to_dict(k):
-    return json_to_dict(k)['payload']
+def kc_json_to_dict(conf):
+    def f(k):
+        return json_to_dict(conf)(k)['payload']
+
+    return f
 
 # BSON
-def dict_to_bson(d):
-    return bson.dumps(d)
+def dict_to_bson(conf):
+    def f(d):
+        return bson.dumps(d)
 
-def bson_to_dict(b):
-    return bson.loads(b)
+    return f
+
+def bson_to_dict(conf):
+    def f(b):
+        return bson.loads(b)
+
+    return f
 
 
 # AVRO
-def dict_to_avro(schema_file):
-    with open(schema_file, 'r') as infile:
+def dict_to_avro(conf):
+    with open(conf.schema_path, 'r') as infile:
         schema = avro.schema.Parse(infile.read())
 
     def f(d):
@@ -74,8 +89,8 @@ def dict_to_avro(schema_file):
 
     return f
 
-def avro_to_dict(schema_file):
-    with open(schema_file, 'r') as infile:
+def avro_to_dict(conf):
+    with open(conf.schema_path, 'r') as infile:
         schema = avro.schema.Parse(infile.read())
 
     def f(a):
@@ -87,36 +102,42 @@ def avro_to_dict(schema_file):
 
 
 # MSGPACK
-def dict_to_msgpack(d):
-    return msgpack.packb(d, use_bin_type=True)
-
-def msgpack_to_dict(m):
-    return msgpack.unpackb(m, raw=False)
-
-
-# CAPNPROTO
-def dict_to_capnp(schema_file, class_name, packed=False):
-    schema = getattr(capnp.load(schema_file), class_name)
+def dict_to_msgpack(conf):
     def f(d):
-        message = schema.new_message(**d)
-        return message.to_bytes_packed() if packed else message.to_bytes()
+        return msgpack.packb(d, use_bin_type=conf.msgpack_bin_type)
 
     return f
 
-def capnp_to_dict(schema_file, class_name, packed=False):
-    schema = getattr(capnp.load(schema_file), class_name)
+def msgpack_to_dict(conf):
+    def f(m):
+        return msgpack.unpackb(m, raw=False)
+
+    return f
+
+
+# CAPNPROTO
+def dict_to_capnp(conf):
+    schema = getattr(capnp.load(conf.schema_path), conf.class_name)
+    def f(d):
+        message = schema.new_message(**d)
+        return message.to_bytes_packed() if conf.capnp_packed else message.to_bytes()
+
+    return f
+
+def capnp_to_dict(conf):
+    schema = getattr(capnp.load(conf.schema_path), conf.class_name)
     def f(c):
-        message = schema.from_bytes_packed(c) if packed else schema.from_bytes(c)
+        message = schema.from_bytes_packed(c) if conf.capnp_packed else schema.from_bytes(c)
         return message.to_dict()
 
     return f
 
 
 # PROTOBUF
-def dict_to_proto(compiled_path, class_name):
-    sys.path.append(compiled_path)
-    pb2_name = class_name.lower() + '_pb2'
-    exec_string = f"from {pb2_name} import {class_name} as PbufMsgWriter"
+def dict_to_proto(conf):
+    sys.path.append(conf.schema_path)
+    pb2_name = conf.class_name.lower() + '_pb2'
+    exec_string = f"from {pb2_name} import {conf.class_name} as PbufMsgWriter"
     exec(exec_string, globals())
 
     def f(d):
@@ -126,10 +147,10 @@ def dict_to_proto(compiled_path, class_name):
 
     return f
 
-def proto_to_dict(compiled_path, class_name):
-    sys.path.append(compiled_path)
-    pb2_name = class_name.lower() + '_pb2'
-    exec_string = f"from {pb2_name} import {class_name} as PbufMsgReader"
+def proto_to_dict(conf):
+    sys.path.append(conf.schema_path)
+    pb2_name = conf.class_name.lower() + '_pb2'
+    exec_string = f"from {pb2_name} import {conf.class_name} as PbufMsgReader"
     exec(exec_string, globals())
 
     def f(p):
@@ -138,3 +159,25 @@ def proto_to_dict(compiled_path, class_name):
         return MessageToDict(reader)
 
     return f
+
+
+# Accessors
+ENCODERS = {
+    JSON_CODEC: dict_to_json,
+    KC_JSON_CODEC: dict_to_kc_json,
+    BSON_CODEC: dict_to_bson,
+    AVRO_CODEC: dict_to_avro,
+    MSGPACK_CODEC: dict_to_msgpack,
+    CAPNP_CODEC: dict_to_capnp,
+    PROTO_CODEC: dict_to_proto,
+}
+
+DECODERS = {
+    JSON_CODEC: json_to_dict,
+    KC_JSON_CODEC: kc_json_to_dict,
+    BSON_CODEC: bson_to_dict,
+    AVRO_CODEC: avro_to_dict,
+    MSGPACK_CODEC: msgpack_to_dict,
+    CAPNP_CODEC: capnp_to_dict,
+    PROTO_CODEC: proto_to_dict,
+}

@@ -1,7 +1,7 @@
 source-brokers = localhost:9092
-source-topic = my.test.topic.json
-source-encoding = json
+sink-topic = my.test.topic.json
+sink-encoding = json
 
 sink-brokers = localhost:9092
-sink-topic = my.test.topic.bson
-sink-encoding = bson
+source-topic = my.test.topic.bson
+source-encoding = bson

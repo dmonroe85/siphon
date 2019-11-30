@@ -13,6 +13,7 @@ clean-env:
 clean-all: clean-data clean-python clean-proto clean-env
 
 
+
 env: clean-all
 	virtualenv -p python3.7 v
 
@@ -22,7 +23,7 @@ pip:
 proto: clean-proto
 	protoc --python_out=./tests ./tests/test.proto
 
-test: clean proto
+test: clean-python clean-proto proto
 	v/bin/python -m unittest discover tests
 
 requirements:
@@ -31,9 +32,12 @@ requirements:
 setup: env pip test
 
 
+
 docker-up:
 	sudo docker-compose -f example/docker-compose.yml up -d
 
 docker-down:
 	sudo docker-compose -f example/docker-compose.yml down
 
+data:
+	v/bin/python example/produce_test_messages.py

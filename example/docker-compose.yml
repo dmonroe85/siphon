@@ -32,7 +32,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS: true
+      KAFKA_AUTO_CREATE_TOPICS: "true"
     healthcheck:
       test: ["CMD-SHELL", "cub kafka-ready -b kafka:9092 1 30"]
       interval: 1s

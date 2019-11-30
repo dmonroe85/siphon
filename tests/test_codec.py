@@ -1,6 +1,7 @@
 import unittest
 
 from lib import codec
+from lib.config import parser
 
 message = {
     'a': 3.3,
@@ -12,50 +13,64 @@ message = {
     }
 }
 
+# File Paths
+config_file = './tests/config.txt'
 kc_schema_file = './tests/test-kc.json'
-
 avro_file = './tests/test.avro'
-
 capnp_file = './tests/test.capnp'
 capnp_class = 'Test'
-# Because of how capnproto handles nullable fields
-capnp_msg = {**message}
-capnp_msg['cNull'] = None
-del capnp_msg['c']
-
 proto_compile_path = './tests/tests'
 proto_message_name = 'Test'
+
+base_args = ['-c', config_file]
 
 class TestCodec(unittest.TestCase):
 
     def test_json(self):
-        encoded = codec.dict_to_json(message)
-        recovered = codec.json_to_dict(encoded)
+        conf, _ = parser.parse_known_args(base_args)
+        encoded = codec.dict_to_json(conf)(message)
+        recovered = codec.json_to_dict(conf)(encoded)
         self.assertEqual(recovered, message)
 
     def test_kc_json(self):
-        encoded = codec.dict_to_kc_json(kc_schema_file)(message)
-        recovered = codec.kc_json_to_dict(encoded)
+        conf, _ = parser.parse_known_args(base_args + ['--schema-path', kc_schema_file])
+        encoded = codec.dict_to_kc_json(conf)(message)
+        recovered = codec.kc_json_to_dict(conf)(encoded)
         self.assertTrue(recovered, message)
 
     def test_bson(self):
-        encoded = codec.dict_to_bson(message)
-        recovered = codec.bson_to_dict(encoded)
+        conf, _ = parser.parse_known_args(base_args)
+        encoded = codec.dict_to_bson(conf)(message)
+        recovered = codec.bson_to_dict(conf)(encoded)
         self.assertEqual(recovered, message)
 
     def test_avro(self):
-        encoded = codec.dict_to_avro(avro_file)(message)
-        recovered = codec.avro_to_dict(avro_file)(encoded)
+        conf, _ = parser.parse_known_args(base_args + ['--schema-path', avro_file])
+        encoded = codec.dict_to_avro(conf)(message)
+        recovered = codec.avro_to_dict(conf)(encoded)
         self.assertEqual(recovered, message)
 
     def test_msgpack(self):
-        encoded = codec.dict_to_msgpack(message)
-        recovered = codec.msgpack_to_dict(encoded)
+        conf, _ = parser.parse_known_args(base_args + ['--msgpack-bin-type'])
+        encoded = codec.dict_to_msgpack(conf)(message)
+        recovered = codec.msgpack_to_dict(conf)(encoded)
         self.assertEqual(recovered, message)
 
     def test_capnproto(self):
-        encoded = codec.dict_to_capnp(capnp_file, capnp_class)(capnp_msg)
-        recovered = codec.capnp_to_dict(capnp_file, capnp_class)(encoded)
+        conf, _ = parser.parse_known_args(base_args + [
+            '--schema-path', capnp_file,
+            '--class-name', capnp_class,
+            '--capnp-packed',
+        ])
+
+        # Because of how capnproto handles nullable fields
+        capnp_msg = {**message}
+        capnp_msg['cNull'] = None
+        del capnp_msg['c']
+
+        encoded = codec.dict_to_capnp(conf)(capnp_msg)
+        recovered = codec.capnp_to_dict(conf)(encoded)
+
         # Because CapnProto uses more limited precision
         self.assertTrue(abs(recovered['a'] - capnp_msg['a']) < 1e-7)
         del recovered['a']
@@ -63,9 +78,14 @@ class TestCodec(unittest.TestCase):
         self.assertEqual(recovered, capnp_msg)
 
     def test_protobuf(self):
-        encoded = codec.dict_to_proto(proto_compile_path, proto_message_name)(message)
-        recovered = codec.proto_to_dict(proto_compile_path, proto_message_name)(encoded)
-        # Because of how proto handles optional
+        conf, _ = parser.parse_known_args(base_args + [
+            '--schema-path', proto_compile_path,
+            '--class-name', proto_message_name,
+        ])
+
+        encoded = codec.dict_to_proto(conf)(message)
+        recovered = codec.proto_to_dict(conf)(encoded)
+        # Because of how protobuf handles optional
         recovered['c'] = None
         self.assertEqual(recovered, message)
 
