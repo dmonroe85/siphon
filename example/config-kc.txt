@@ -1,0 +1,9 @@
+source-brokers = localhost:9092
+source-topic = my.test.topic.json
+source-encoding = json
+
+sink-brokers = localhost:9092
+sink-topic = my.test.topic.kc
+sink-encoding = kc-json
+
+schema-path = ./example/message-kc.json

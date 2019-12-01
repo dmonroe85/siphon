@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package message;
+
+message Message {
+  required int32 userId = 1;
+  required string firstName = 2;
+  optional string favoriteSerializer = 3;
+}

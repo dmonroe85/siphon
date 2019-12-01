@@ -1,0 +1,22 @@
+{
+    "type": "struct",
+    "fields": [
+        {
+            "type": "int32",
+            "optional": false,
+            "field": "userId"
+        },
+        {
+            "type": "string",
+            "optional": false,
+            "field": "firstName"
+        },
+        {
+            "type": "string",
+            "optional": true,
+            "field": "favoriteSerializer"
+        }
+    ],
+    "optional": false,
+    "name": "message"
+}

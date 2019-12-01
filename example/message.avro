@@ -2,8 +2,8 @@
     "name": "message",
     "type": "record",
     "fields": [
-        {"name": "user_id", "type": "int"},
-        {"name": "first_name", "type": "string"},
-        {"name": "favorite_serializer", "type": ["string", "null"]}
+        {"name": "userId", "type": "int"},
+        {"name": "firstName", "type": "string"},
+        {"name": "favoriteSerializer", "type": ["string", "null"]}
     ]
 }
