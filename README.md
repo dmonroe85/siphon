@@ -1,6 +1,6 @@
 # Siphon
 
-A library to:
+A tool intended to:
 * move data from one kafka topic to another
 * within or across clusters
 * with the ability to change serialization format
