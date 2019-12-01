@@ -18,17 +18,21 @@ To run siphon, run `v/bin/python siphon.py <options>`
 For help with configuration, run `v/bin/python siphon.py --help`.
 
 To get started with a local kafka environment:
-* `make docker-up` to run kafka and zookeeper locally
+* `make docker-up` to run kafka and zookeeper locally; wait until they are healthy
+    * use `docker ps` to check the health of both services.
 * `make data` to publish json data to kafka
+* `make run-examples` to iterate through the supported serializer configurations
+* `make analyze-topics` to check the disk size of each kafka topic
 
 
-## Serializer Comparison
+## Serializer Comparison Example
 
-This test was done generating data from
+This test was done generating 10000 json test messages and using siphon to move
+and convert to each different serializer.
 
 ```bash
-$ tree -sh -P *.log
-.
+tree -sh -P *.log ./example/data/kafka/data/
+./example/data/kafka/data/
 ├── [4.0K]  __confluent.support.metrics-0
 │   └── [   0]  00000000000000000000.log
 ├── [4.0K]  my.test.topic.avro-0
@@ -44,7 +48,8 @@ $ tree -sh -P *.log
 ├── [4.0K]  my.test.topic.msgpack-0
 │   └── [622K]  00000000000000000000.log
 └── [4.0K]  my.test.topic.protobuf-0
-    └── [271K]  00000000000000000000.log
+    └── [272K]  00000000000000000000.log
 
 8 directories, 8 files
+
 ```

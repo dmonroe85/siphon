@@ -6,5 +6,5 @@ sink-brokers = localhost:9092
 sink-topic = my.test.topic.protobuf
 sink-encoding = protobuf
 
-schema-path = ./example/message
+schema-path = ./example/example
 class-name = Message

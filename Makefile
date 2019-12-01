@@ -66,3 +66,7 @@ data:
 # Run example configurations of siphon
 run-examples:
 	./run_examples.sh
+
+# check the disk size of each kafka topic
+analyze-topics:
+	tree -sh -P *.log ./example/data/kafka/data/

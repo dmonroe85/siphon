@@ -21,3 +21,4 @@ check_dep docker https://www.docker.com/
 check_dep docker-compose https://docs.docker.com/compose/
 check_dep protoc https://developers.google.com/protocol-buffers
 check_dep capnp https://capnproto.org/
+check_dep tree https://linux.die.net/man/1/tree
